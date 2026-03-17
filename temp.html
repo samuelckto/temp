@@ -1,43 +1,57 @@
+<!DOCTYPE html>
 <html>
 <head>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript" charset="utf-8"></script></script>
-<script src="raphael-2.1.4.min.js"></script>
-<script src="justgage.js"></script>
+    <meta charset="utf-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="raphael-2.1.4.min.js"></script>
+    <script src="justgage.js"></script>
 
-<script>
-var accessToken = "9e444f31e39df1747e1495f4c15a3ebe22ffaba4";
-var deviceID = "0a10aced202194944a0b03b4"
-var url = "https://api.particle.io/v1/devices/0a10aced202194944a0b03b4/grados?access_token=9e444f31e39df1747e1495f4c15a3ebe22ffaba4";
-function callback(data, status){
-	if (status == "success") {
-		temp = parseFloat(data.result);
-		temp = temp.toFixed(2);
-		g.refresh(temp);
-		setTimeout(getReading, 1000);
-	}
-	else {
-		alert("There was a problem");
-	}
-}
-function getReading(){
-   	$.get(url, {access_token: accessToken}, callback);
-}
-</script>
+    <script>
+    // Configuración de credenciales
+    var accessToken = "9e444f31e39df1747e1495f4c15a3ebe22ffaba4";
+    var deviceID = "0a10aced202194944a0b03b4";
+    
+    // URL LIMPIA: Solo la ruta al recurso. jQuery agregará el token automáticamente.
+    var url = "https://api.particle.io/v1/devices/" + deviceID + "/grados";
+
+    function callback(data, status){
+        if (status == "success") {
+            // Convertimos el resultado a número decimal con 2 posiciones
+            var temp = parseFloat(data.result).toFixed(2);
+            // Actualizamos el medidor visual
+            g.refresh(temp);
+            // Programamos la siguiente lectura en 1 segundo
+            setTimeout(getReading, 1000);
+        }
+        else {
+            console.error("Hubo un problema al consultar la API de Particle.");
+        }
+    }
+
+    function getReading(){
+        // Realizamos la petición GET enviando el token como parámetro
+        $.get(url, {access_token: accessToken}, callback);
+    }
+    </script>
 </head>	
 
-<body>
-<div id="gauge" class="200x160px"></div>
+<body style="text-align: center; background-color: #f7f7f7;">
+    <div id="gauge" style="width:400px; height:320px; margin: 0 auto;"></div>
 
-<script>
-var g = new JustGage({
-    id: "gauge",
-    value: 0,
-    min: 0,
-    max: 400,
-    title: "Temperatura (C)"
-});
-getReading();
-</script>
+    <script>
+    // Inicialización de JustGage
+    var g = new JustGage({
+        id: "gauge",
+        value: 0,
+        min: 0,
+        max: 100, // Bajamos el máximo a 100 para que la aguja se mueva más (más sensible)
+        title: "Temperatura (C)",
+        label: "Celsius",
+        levelColors: ["#00fff6", "#ff0083", "#ff0000"] // Colores personalizados: frío a calor
+    });
 
+    // Primera llamada para iniciar el ciclo
+    getReading();
+    </script>
 </body>
 </html>
